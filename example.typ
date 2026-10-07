@@ -11,7 +11,7 @@
 //
 // Pour numéroter les équations hors texte, ajouter : numeroter-equations: true
 
-#show: cours.with(
+#show: lipnote.with(
   // La langue par défaut est le français ; utiliser lang: "en" pour l'anglais.
   lang: "fr",
   titre: [Analyse réelle : suites numériques],

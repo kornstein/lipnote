@@ -182,7 +182,7 @@
 
 
 
-#let cours(
+#let lipnote(
   titre: [Titre du cours],
   lang: "fr",
   titre-court: auto,
