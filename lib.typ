@@ -16,6 +16,27 @@
   mono: ("New Computer Modern Mono", "DejaVu Sans Mono"),
 )
 
+#let _traductions = (
+  fr: (
+    theoreme: [Théorème], lemme: [Lemme], corollaire: [Corollaire],
+    proposition: [Proposition], propriete: [Propriété], conjecture: [Conjecture],
+    observation: [Observation], definition: [Définition], exemple: [Exemple],
+    methode: [Méthode], exercice: [Exercice], notation: [Notation],
+    note: [Note], remarque: [Remarque], rappel: [Rappel], assertion: [Assertion],
+    preuve: [Démonstration], resume: [Résumé], table-matieres: [Table des matières],
+  ),
+  en: (
+    theoreme: [Theorem], lemme: [Lemma], corollaire: [Corollary],
+    proposition: [Proposition], propriete: [Property], conjecture: [Conjecture],
+    observation: [Observation], definition: [Definition], exemple: [Example],
+    methode: [Method], exercice: [Exercise], notation: [Notation],
+    note: [Note], remarque: [Remark], rappel: [Recall], assertion: [Assertion],
+    preuve: [Proof], resume: [Summary], table-matieres: [Table of contents],
+  ),
+)
+
+#let _tr(cle, lang: "fr") = _traductions.at(lang).at(cle)
+
 #let Card = math.op("Card")
 #let Ker = math.op("Ker")
 #let Im = math.op("Im")
@@ -55,37 +76,38 @@
 )
 
 #let _types-env = (
-  theoreme: _t([Théorème], italique: true),
-  lemme: _t([Lemme], italique: true),
-  corollaire: _t([Corollaire], italique: true),
-  proposition: _t([Proposition], italique: true),
-  propriete: _t([Propriété], italique: true),
-  conjecture: _t([Conjecture], italique: true),
-  observation: _t([Observation], italique: true),
-  definition: _t([Définition]),
-  exemple: _t([Exemple]),
-  methode: _t([Méthode]),
-  exercice: _t([Exercice], groupe: "cours-exercice"),
-  notation: _t([Notation], gras: false),
-  note: _t([Note], gras: false),
-  remarque: _t([Remarque], gras: false),
-  rappel: _t([Rappel], gras: false),
-  assertion: _t([Assertion], plein: false, gras: false),
+  theoreme: _t("theoreme", italique: true),
+  lemme: _t("lemme", italique: true),
+  corollaire: _t("corollaire", italique: true),
+  proposition: _t("proposition", italique: true),
+  propriete: _t("propriete", italique: true),
+  conjecture: _t("conjecture", italique: true),
+  observation: _t("observation", italique: true),
+  definition: _t("definition"),
+  exemple: _t("exemple"),
+  methode: _t("methode"),
+  exercice: _t("exercice", groupe: "cours-exercice"),
+  notation: _t("notation", gras: false),
+  note: _t("note", gras: false),
+  remarque: _t("remarque", gras: false),
+  rappel: _t("rappel", gras: false),
+  assertion: _t("assertion", plein: false, gras: false),
 )
 
 #let _env(nature, corps, nom: none, numero: true) = {
   let cfg = _types-env.at(nature)
   let groupe = cfg.groupe
+  let titre = context { _tr(cfg.titre, lang: state("lang").get()) }
 
   let intitule = {
-    cfg.titre
+    titre
     if nom != none { [~(#nom)] }
     [.]
   }
 
   figure(
     kind: groupe,
-    supplement: cfg.titre,
+    supplement: titre,
     numbering: if numero { _numero-env } else { none },
     outlined: false,
     align(left, block(
@@ -138,24 +160,31 @@
   },
 )
 
-#let preuve(corps, titre: [Démonstration]) = _bloc-preuve(
-  corps,
-  titre,
-  text.with(font: polices.sans, weight: "bold"),
-  text(size: 13pt, fill: couleurs.gris, sym.triangle.filled.l),
-)
+#let preuve(corps, titre: none) = {
+  let titre = if titre == none { context { _tr("preuve", lang: state("lang").get()) } } else { titre }
+  _bloc-preuve(
+    corps,
+    titre,
+    text.with(font: polices.sans, weight: "bold"),
+    text(size: 13pt, fill: couleurs.gris, sym.triangle.filled.l),
+  )
+}
 
-#let preuve-assertion(corps, titre: [Démonstration]) = _bloc-preuve(
-  corps,
-  titre,
-  text.with(font: polices.sans, fill: couleurs.gris),
-  text(size: 13pt, fill: couleurs.gris, sym.triangle.l),
-)
+#let preuve-assertion(corps, titre: none) = {
+  let titre = if titre == none { context { _tr("preuve", lang: state("lang").get()) } } else { titre }
+  _bloc-preuve(
+    corps,
+    titre,
+    text.with(font: polices.sans, fill: couleurs.gris),
+    text(size: 13pt, fill: couleurs.gris, sym.triangle.l),
+  )
+}
 
 
 
 #let cours(
   titre: [Titre du cours],
+  lang: "fr",
   titre-court: auto,
   sous-titre: none,
   auteur: none,
@@ -164,7 +193,7 @@
   annee: none,
   date: none,
   resume: none,
-  intitule-resume: [Résumé],
+  intitule-resume: auto,
   etiquette: none,
   table-des-matieres: false,
   profondeur-table: 2,
@@ -174,6 +203,7 @@
   corps,
 ) = {
   let titre-court = if titre-court == auto { titre } else { titre-court }
+  state("lang").update(lang)
 
   let auteurs = if auteur == none {
     ()
@@ -258,7 +288,7 @@
     footer-descent: b,
   )
 
-  set text(taille, font: polices.serif, lang: "fr")
+  set text(taille, font: polices.serif, lang: lang)
   show math.equation: set text(font: polices.math)
   show math.equation: set block(breakable: true)
   set math.equation(numbering: "(1)") if numeroter-equations
@@ -315,7 +345,7 @@
         align: horizon,
         column-gutter: 1.6mm,
         line(length: 100%, stroke: 0.5pt + couleurs.gris-trait),
-        text(11pt, font: polices.sans, tracking: 0.01em, intitule-resume),
+        text(11pt, font: polices.sans, tracking: 0.01em, if intitule-resume == auto { _tr("resume", lang: lang) } else { intitule-resume }),
         line(length: 100%, stroke: 0.5pt + couleurs.gris-trait),
       )
       v(3.1mm)
@@ -484,7 +514,7 @@
       v(2mm, weak: true)
       strong(it)
     }
-    outline(title: [Table des matières], depth: profondeur-table, indent: 5mm)
+    outline(title: _tr("table-matieres", lang: lang), depth: profondeur-table, indent: 5mm)
     pagebreak(weak: true)
   }
 

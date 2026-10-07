@@ -12,6 +12,8 @@
 // Pour numéroter les équations hors texte, ajouter : numeroter-equations: true
 
 #show: cours.with(
+  // La langue par défaut est le français ; utiliser lang: "en" pour l'anglais.
+  lang: "fr",
   titre: [Analyse réelle : suites numériques],
   titre-court: [Analyse réelle],
   sous-titre: [Notes de cours de première année de licence de mathématiques],
